@@ -2,7 +2,7 @@
 name: Lint
 
 on: # yamllint disable-line rule:truthy
-  workflow_dispatch:
+  workflow_dispatch: true
   pull_request:
     branches:
       - main
