@@ -2,7 +2,8 @@
 - hosts:
     - master
     - worker
-  become: true
+  remote_user: root
+
   gather_facts: true
   any_errors_fatal: true
   pre_tasks:
