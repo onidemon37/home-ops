@@ -17,8 +17,8 @@ provider "registry.terraform.io/carlpett/sops" {
 }
 
 provider "registry.terraform.io/cloudflare/cloudflare" {
-  version     = "3.22.0"
-  constraints = "3.22.0"
+  version     = "3.24.0"
+  constraints = "3.24.0"
   hashes = [
     "h1:QF87L0J98NgpNMhOfOtFykadyzJ0FfkV2RPF6sf/FrA=",
     "zh:12c7d968b14e54990a1c137f1b0b525eacefbcc857baf00c107c7a32ebb3f476",
