@@ -1,0 +1,25 @@
+{
+  "packages": [
+    "curl",
+    "jq",
+    "python310",
+    "python310Packages.pip",
+    "python310Packages.requests",
+    "python310Packages.jmespath",
+    "python310Packages.pyyaml",
+    "pre-commit",
+    "virtualenv",
+    "ansible",
+    "ansible-lint",
+    "python310Packages.ansible-core",
+    "yamllint",
+    "go-task",
+    "terraform"
+  ],
+  "shell": {
+    "init_hook": "export \"PATH=$PATH:$PWD/terraform/cloudflare:$PWD/ansible\" PS1='📦 devbox>"
+  },
+  "nixpkgs": {
+    "commit": "cdead16a444a3e5de7bc9b0af8e198b11bb01804"
+  }
+}

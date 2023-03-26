@@ -1,0 +1,22 @@
+kind: ENC[AES256_GCM,data:Sf6v2OFB,iv:8n8lKjh7yU66VZ0LPtxn3yUvpVlVHhoMRG8UFyY/iDQ=,tag:XMZummNIBg/ljuohwDptmw==,type:str]
+ansible_user: ENC[AES256_GCM,data:aUJUhwU=,iv:2ykfwIsQ4OJFW0TYPbVkMQsaLIb+JpGT6iK4PaH/v6g=,tag:9cvlTSY8VQxJ2rbxIb7o8A==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age1vggkcg3qnhzprann40zldc92nrv3ps5mpg7e4vl5ggllrgtjxucsw9ugyc
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAzV3JmUzlkVCs0R1NYckI1
+            eG9uWGhsVjZmd25BM2lNMU4rRE9ZSENRbTNRClVmK2NXeDJSaWlkdGZCVkdrQXhi
+            M0RNK0VBYUR4bStUM0xMem5sNjlYWVUKLS0tIEhra25Bd0lnc0xKVmFoazFVZHlo
+            MTF4YjdVdVJ5RWdXT2VKMnpoeFhUSlEK7R7h/Y4+YuKqxWctu14oxG1/VHsvh4ru
+            N1a/T7XPUOsfzguDyNu2ZZ4TWZ/PSHFkZZ3yq72QTp+/zxsALe713g==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2023-03-25T22:18:26Z"
+    mac: ENC[AES256_GCM,data:Ydgu5ghwJiPs6fVDefkkqMNgAMFmM1O9mw5D5Ldqy5r7NPItt04O7VwkNhQ84HVXgphiGYMTKM9FOmWYsg0TtJkmNPoWWjHm2bvldtYjk5Kyn9baMNEBD1rCuYF5s4BY/06nrvV1g5VTiYuBBBkJXhltOde3oWNsd/cIb37IqV8=,iv:E6DSfvEq+IBu7SKkp37rHWvh6xdF4sCEfHTcMM8ulQo=,tag:BOtHtRRHarsileLvCa3e7Q==,type:str]
+    pgp: []
+    unencrypted_suffix: _unencrypted
+    version: 3.7.3
