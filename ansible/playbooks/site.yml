@@ -1,0 +1,19 @@
+---
+- name: "Configure base for all servers"
+  hosts: all
+  remote_user: infra
+  become: true
+  become_method: sudo
+  tags: common
+  roles:
+    - nignu-common
+
+- hosts: prometheus
+  remote_user: "{{ workstation_user | default (root) }}"
+  tags: prometheus
+  tasks:
+    - name: "Include Role Prometheus"
+      include_role:
+        name: "{{ item }}"
+      loop:
+        - cloudalchemy.prometheus
