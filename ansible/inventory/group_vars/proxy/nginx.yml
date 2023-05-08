@@ -1,0 +1,9 @@
+---
+nginx_vhosts:
+  - listen: "81"
+    server_name: "ninhu.xyz"
+    state: "present"
+    extra_parameters: |
+      location /nginx_status {
+        stub_status on;
+      }

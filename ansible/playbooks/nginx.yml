@@ -1,0 +1,15 @@
+---
+- name: "Install the reverse proxy"
+  hosts: proxy
+  remote_user: "infra"
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: "Include nginx role"
+      ansible.builtin.include_role:
+        name: "{{ role }}"
+      loop:
+        - geerlingguy.nginx
+      loop_control:
+        loop_var: role
