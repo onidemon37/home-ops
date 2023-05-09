@@ -1,7 +1,7 @@
 ---
 nginx_vhosts:
   - listen: "81"
-    server_name: "ninhu.xyz"
+    server_name: "metrics.ninhu.xyz"
     state: "present"
     extra_parameters: |
       location /nginx_status {
