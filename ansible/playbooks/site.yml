@@ -1,19 +1,31 @@
 ---
 - name: "Configure base for all servers"
   hosts: all
-  remote_user: infra
+  remote_user: "infra"
   become: true
   become_method: sudo
   tags: common
   roles:
     - nignu-common
 
-- hosts: prometheus
-  remote_user: "{{ workstation_user | default (root) }}"
-  tags: prometheus
+# Install Node Exporter on all nodes
+- name: "Install Prometheus Node Exporter"
+  hosts: all
+  remote_user: infra
+  become: true
+  tags: node_exporter
+  pre_tasks:
+    - name: " Create node_exporter dir"
+      ansible.builtin.file:
+        path: "/etc/node_exporter"
+        state: directory
+        owner: root
+        group: root
+
   tasks:
-    - name: "Include Role Prometheus"
+    - name: "Include roles prometheus"
       include_role:
-        name: "{{ item }}"
-      loop:
-        - cloudalchemy.prometheus
+        name: prometheus.prometheus.node_exporter
+
+- import_playbook: prometheus.yml
+- import_playbook: nginx.yml
