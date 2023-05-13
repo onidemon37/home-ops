@@ -10,6 +10,6 @@
       ansible.builtin.include_role:
         name: "{{ role }}"
       loop:
-        - nginxinc.nginx
+        - geerlingguy.nginx
       loop_control:
         loop_var: role
