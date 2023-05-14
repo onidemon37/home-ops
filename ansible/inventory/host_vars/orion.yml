@@ -1,0 +1,18 @@
+---
+workstation_user: "onidemon"
+user_shell: "/usr/bin/zsh"
+superadmins:
+  - onidemon
+
+users:
+  - username: "{{ workstation_user }}"
+    authorized_keys: "{{ superadmins | default([]) }}"
+    home: "/home/{{ workstation_user }}"
+    home_mode: "0700"
+    system: false
+    group: "{{ workstation_user }}"
+    groups: ["wheel", "docker", "libvirt"]
+    shell: "{{ user_shell }}"
+
+users_remove:
+  - "infra"

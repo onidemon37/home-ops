@@ -1,17 +1,29 @@
 ---
 - name: "Configure base for all servers"
   hosts: all
-  remote_user: "infra"
+  remote_user: "{{ workstation_user | default('root') }}"
   become: true
   become_method: sudo
   tags: common
   roles:
     - nignu-common
 
+- name: "Configure base for all servers"
+  hosts: all
+  remote_user: "{{ workstation_user | default('root') }}"
+  become: true
+  become_method: sudo
+  tags: users
+
+  tasks:
+    - name: "Include users role"
+      include_role:
+        name: ansible-users
+
 # Install Node Exporter on all nodes
 - name: "Install Prometheus Node Exporter"
   hosts: all
-  remote_user: infra
+  remote_user: "{{ workstation_user | default('root') }}"
   become: true
   tags: node_exporter
   pre_tasks:

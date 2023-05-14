@@ -1,0 +1,13 @@
+---
+# variables for oh-my-zsh
+zsh_clone_plugin: true
+zsh_plugins:
+  - name: "Syntax-Highlighting"
+    repo: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+    dest: "zsh-syntax-highlighting"
+  - name: "Completions"
+    repo: "https://github.com/zsh-users/zsh-completions.git"
+    dest: "zsh-completions"
+  - name: "Autosuggestions"
+    repo: "https://github.com/zsh-users/zsh-autosuggestions.git"
+    dest: "zsh-autosuggestions"
