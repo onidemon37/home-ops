@@ -1,0 +1,63 @@
+---
+# playbook to clone oh-my-zsh
+- name: "check if dependency package exists"
+  hosts: all
+  tags: ohmy
+  remote_user: "{{ ansible_user | default('root') }}"
+  become: True
+  become_method: sudo
+  vars:
+    dependency_pkg:
+      - git
+      - wget
+      - zsh
+  tasks:
+    - name: "Check if {{ dependency_pkg }} are installed"
+      package_facts:
+        manager: auto
+      register: package_facts
+
+    - name: "Print package facts"
+      debug:
+        var: package_facts
+
+    - name: "Install dependency packages"
+      ansible.builtin.package:
+        name: "{{ dependency_pkg }}"
+        state: present
+      with_items: "not package_facts.ansible_facts.packages | intersect(dependency_pkg) == dependency_pkg"
+
+- name: "Install oh-my-zsh"
+  hosts: all
+  tags: ohmy
+  remote_user: root #"{{ user_name }}"
+  tasks:
+    - name: Check if .zshrc exists
+      ansible.builtin.stat:
+        path: ~/.zshrc
+      register: stat_zshrc
+
+    - name: "Check if .oh-my-zsh folder exist"
+      ansible.builtin.stat:
+        path: ~/.oh-my-zsh
+      register: stat_oh_my_zsh
+
+    - name: "Clone oh-my-zsh"
+      ansible.builtin.git:
+        repo: "https://github.com/ohmyzsh/ohmyzsh.git"
+        dest: "~/.oh-my-zsh"
+      when: not stat_oh_my_zsh.stat.exists
+
+    - name: "Creating new ~/.zshrc"
+      ansible.builtin.copy:
+        src: "~/.oh-my-zsh/templates/zshrc.zsh-template"
+        dest: "~/.zshrc"
+      when: not stat_zshrc.stat.exists
+
+    - name: "Clone oh-my-zsh plugins"
+      ansible.builtin.git:
+        repo: "{{ item.repo }}"
+        dest: "~/.oh-my-zsh/plugins/{{ item.dest }}"
+      with_items:
+        - "{{ zsh_plugins }}"
+      when: zsh_clone_plugin == true

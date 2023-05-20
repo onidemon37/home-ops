@@ -1,0 +1,31 @@
+---
+workstation_user: "infra"
+user_shell: "/usr/bin/zsh"
+
+superadmins:
+  - onidemon
+
+users:
+  - username: "{{ workstation_user }}"
+    authorized_keys: "{{ superadmins | default([]) }}"
+    home: "/home/{{ workstation_user }}"
+    home_mode: "0700"
+    system: false
+    group: "{{ workstation_user }}"
+    groups: ["wheel", "docker"]
+    shell: "{{ user_shell }}"
+
+users_remove: []
+
+# variables for oh-my-zsh
+zsh_clone_plugin: true
+zsh_plugins:
+  - name: "Syntax-Highlighting"
+    repo: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+    dest: "zsh-syntax-highlighting"
+  - name: "Completions"
+    repo: "https://github.com/zsh-users/zsh-completions.git"
+    dest: "zsh-completions"
+  - name: "Autosuggestions"
+    repo: "https://github.com/zsh-users/zsh-autosuggestions.git"
+    dest: "zsh-autosuggestions"
