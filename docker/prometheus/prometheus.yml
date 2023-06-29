@@ -1,0 +1,39 @@
+# http://prometheus.io/docs/operating/configuration/
+
+global:
+  evaluation_interval: 15s
+  query_log_file: ./logs/query.log
+  scrape_interval: 15s
+  scrape_timeout: 10s
+
+rule_files:
+  - alert.yml
+
+#alerting:
+#  alertmanagers:
+#  - path_prefix: alertmanager/
+#    scheme: http
+#    static_configs:
+#    - targets:
+#      - localhost:9093
+
+scrape_configs:
+  - job_name: "prometheus"
+    metrics_path: /metrics
+    static_configs:
+    - targets:
+      - "localhost:{PROMETHEUS_PORT}"
+
+  - job_name: "services"
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+        # Home Lab
+        - "balai-dc.ninhu.xyz:9100"
+
+  - job_name: "cadvisor"
+    metrics_path: /metrics
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - "cadvisor:${CADVISOR_PORT}"

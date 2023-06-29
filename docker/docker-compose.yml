@@ -1,0 +1,154 @@
+version: '3.8'
+
+services:
+  # PSQL Adminer
+  adminer:
+    container_name: "${APP_NAME}-adminer"
+    image: "adminer"
+    restart: always
+    ports:
+      - "${PSQL_ADMINER_PORT}:8080"
+
+  # Mongodb
+  mongodb:
+    container_name: "${APP_NAME}-mongodb"
+    image: "${MONGO_IMAGE}:${MONGO_VERSION}"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_INIT_ROOT_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INIT_ROOT_PASSWORD}"
+      MONGO_INITDB_DATABASE: "${MONGO_INIT_DATABASE}"
+    volumes:
+            #- "mongodb_data:/data/db"
+      - "mongodb_data:/data/db"
+    restart: unless-stopped
+    ports:
+      - "${MONGO_PORT}:27017"
+    networks:
+      - monitoring
+
+  # Prometheus
+  prometheus:
+    container_name: "${APP_NAME}-prometheus"
+    image: "${PROMETHEUS_IMAGE}:${PROMETHEUS_VERSION}"
+    restart: unless-stopped
+    networks:
+      - monitoring
+    volumes:
+      - "./prometheus:/etc/prometheus"
+      - "prometheus-data:/prometheus"
+    command:
+      - "--web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+
+  grafana:
+    container_name: "${APP_NAME}-grafana"
+    image: "${GRAFANA_IMAGE}:${GRAFANA_VERSION}"
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - "./grafana/provisioning:/etc/grafana/provisioning/"
+      #- "./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources"
+      - "grafana-data:/var/lib/grafana"
+    networks:
+      - monitoring
+    depends_on:
+      - "prometheus"
+      - "loki"
+    environment:
+      # Change this to your time zone, valid time zones can be found here: https://www.joda.org/joda-time/timezones.html
+      TZ: "${TIMEZONE}"
+      GF_SECURITY_ADMIN_USER: "${GRAFANA_ADMIN_USER}"
+      GF_DATABASE_TYPE: "postgres"
+      GF_DATABASE_HOST: "${GRAFANA_DATABASE_HOST}:${GRAFANA_DATABASE_PORT}"
+      GF_DATABASE_NAME: "${GRAFANA_DATABASE_NAME}"
+      GF_DATABASE_USER: "${GRAFANA_DATABASE_USER}"
+      GF_DATABASE_PASSWORD: "${GRAFANA_DATABASE_PASSWORD}"
+      GF_PATHS_PROVISIONING: "/etc/grafana/provisioning"
+    restart: "unless-stopped"
+
+  # Cadvisor
+  cadvisor:
+    image: "${CADVISOR_IMAGE}"
+    container_name: "${APP_NAME}-cadvisor"
+    volumes:
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+    ports:
+      - "${CADVISOR_PORT}:8080"
+    depends_on:
+      - "prometheus"
+    networks:
+      - monitoring
+
+  # influcdb
+  influxdb:
+    container_name: "${APP_NAME}-influxdb"
+    image: "${INFLUX_IMAGE}:${INFLUX_VERSION}"
+    ports:
+      - '${INFLUX_PORT}:8086'
+    volumes:
+      - "twd_influxdb2_data:/var/lib/influxdb2"
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+    networks:
+      - monitoring
+    environment:
+      - "DOCKER_INFLUXDB_INIT_MODE=${INFLUX_MODE}"
+      - "DOCKER_INFLUXDB_INIT_USERNAME=${INFLUX_USERNAME}"
+      - "DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUX_PASSWORD}"
+      - "DOCKER_INFLUXDB_INIT_ORG=${INFLUX_ORG}"
+      - "DOCKER_INFLUXDB_INIT_BUCKET=${INFLUX_BUCKET}"
+      - "DOCKER_INFLUXDB_INIT_RETENTION=${INFLUX_RETENTION}"
+      - "TZ=${TIMEZONE}"
+    restart: "unless-stopped"
+
+  loki:
+    container_name: "${APP_NAME}-loki"
+    image: "${LOKI_IMAGE}:${LOKI_VERSION}"
+    ports:
+      - "${LOKI_PORT}:3100"
+    command: '-config.file=/etc/loki/local-config.yaml'
+    restart: "unless-stopped"
+    networks:
+      - monitoring
+
+  promtail:
+    container_name: "${APP_NAME}-loki-promtail"
+    image: "${LOKI_PROMTAIL_IMAGE}:${LOKI_PROMTAIL_VERSION}"
+    volumes:
+      - "/var/log:/var/log"
+    command: '-config.file=/etc/promtail/config.yml'
+    restart: "unless-stopped"
+    networks:
+      - monitoring
+
+  #  alertmanager:
+  #    image: prom/alertmanager:v0.23.0
+  #    restart: unless-stopped
+  #    ports:
+  #      - "9093:9093"
+  #    volumes:
+  #      - "./alertmanager:/config"
+  #      - alertmanager-data:/data
+  #    command: --config.file=/config/alertmanager.yml --log.level=debug
+
+  #prom2teams:
+  #  image: idealista/prom2teams:3.2.3
+  #  restart: unless-stopped
+  #  environment:
+  #    PROM2TEAMS_CONNECTOR: "https://og2gether.webhook.office.com/webhookb2/b5370781-89c2-45ba-be14-453e29dfb0a9@8794e153-c3bd-4479-8bea-61aeaf167d5a/IncomingWebhook/57e69e8f10dd49ce8dae3b816159e228/4eb361c9-e566-4b66-ab30-bed630f495a5"
+  #  ports:
+  #    - 8089:8089
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  grafana_data:
+  influxdb2_data:
+  mongodb_data:
+  mongodb_config:
