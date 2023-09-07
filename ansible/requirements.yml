@@ -18,7 +18,7 @@ roles:
     version: v3.4.2
   - name: nxinxinc.nginx
     src: https://github.com/nginxinc/ansible-role-nginx.git
-    version: 0.24.0
+    version: 0.24.1
   - name: nginxinc.nginx_config
     src: https://github.com/nginxinc/ansible-role-nginx-config.git
     version: 0.6.0
