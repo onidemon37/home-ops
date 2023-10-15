@@ -1,0 +1,62 @@
+---
+- hosts: all
+  remote_user: "{{ workstation_user | default('root') }}"
+  become: true
+  tasks:
+    - name: Run on RedHat servers
+      block:
+        - name: Update all installed packages using YUM module
+          ansible.builtin.yum:
+            name: '*'
+            state: latest
+            update_cache: true
+            update_only: true
+          register: yum_update_status
+
+        - name: Remove packates not needed anymore
+          ansible.builtin.yum:
+            autoremove: true
+
+      when: ansible_os_family == 'RedHat'
+
+
+    - name: Run on ArchLinux servers
+      block:
+
+        - hosts: pacman
+          remote_user: "{{ workstation_user | default('root') }}"
+          become: true
+          tasks:
+
+        - name: Update all installed packages using PACMAN module
+          community.general.pacman:
+            update_cache: true
+            upgrade: true
+          register: pacman_update_status
+
+        - name: Reboot when packages were updated
+          reboot:
+          when: yum_update_status.changed
+
+      when: ansible_os_family == "Arch Linux"
+
+
+    - name: Run on Debian servers
+      block:
+        - name: Update all installed packages using APT module
+          ansible.builtin.apt:
+            name: '*'
+            state: latest
+            update_cache: true
+            only_upgrade: true
+          register: apt_update_status
+
+        - name: Remove packages not needed anymore
+          ansible.builtin.apt:
+            autoremove: true
+
+        - name: Reboot when packages were updated
+          reboot:
+            post_reboot_delay: 60
+          when: apt_update_status.changed
+      when: ansible_os_family == 'Debian'

@@ -1,6 +1,7 @@
 ---
 workstation_user: "onidemon"
 user_shell: "/usr/bin/zsh"
+
 superadmins:
   - onidemon
 

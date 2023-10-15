@@ -1,0 +1,105 @@
+---
+prometheus_version: 2.46.0
+prometheus_binary_local_dir: ""
+prometheus_skip_install: false
+
+prometheus_config_dir: /etc/prometheus
+prometheus_db_dir: /var/lib/prometheus
+
+prometheus_web_listen_address: "0.0.0.0:9090"
+
+prometheus_storage_retention: "15d"
+prometheus_storage_retention_size: "0"
+
+prometheus_global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+  # query_log_file: ./logs/query.log
+
+prometheus_external_labels:
+  environment: |
+    "{{ ansible_fqdn | default(ansible_host) | default(inventory_hostname) }}"
+
+prometheus_scrape_configs:
+  - job_name: "prometheus"
+    metrics_path: "{{ prometheus_metrics_path }}"
+    static_configs:
+      - targets:
+          - "{{ ansible_fqdn | default(ansible_host) | default('localhost') }}:9090"
+
+  - job_name: "node"
+    metrics_path: "{{ prometheus_metrics_path }}"
+    static_configs:
+      - targets:
+          [
+            "data-psql.ninhu.xyz:9100",
+            "pve.ninhu.xyz:9100",
+            "balai-dc.ninhu.xyz:9100",
+            "opnsense.ninhu.xyz:9100",
+            "supermario.ninhu.xyz:9100",
+            "orion.ninhu.xyz:9100",
+            "rpi.ninhu.xyz:9100",
+            "elastic-manager-1.ninhu.xyz:9100",
+            "elastic-manager-2.ninhu.xyz:9100",
+            "elastic-manager-3.ninhu.xyz:9100",
+            "elastic-data-1.ninhu.xyz:9100",
+            "elastic-data-2.ninhu.xyz:9100",
+          ]
+
+  # cadvisor
+  - job_name: 'balai-dc: cadvisor'
+    metrics_path: /metrics
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - "balai-dc.ninhu.xyz:10080"
+  - job_name: 'pve'
+    static_configs:
+      - targets:
+          - "pve.ninhu.xyz:9221"  # Proxmox VE node with PVE exporter.
+    metrics_path: /pve
+    params:
+      module: [default]
+
+  - job_name: 'netdata - test'
+    metrics_path: /api/v1/allmetrics
+    params:
+      format: ["prometheus_all_hosts"]
+    honor_labels: true
+    static_configs:
+      - targets:
+          [
+            "opnsense.ninhu.xyz:19999",
+            "data-psql.ninhu.xyz:19999",
+            "balai-dc.ninhu.xyz:19999",
+            "pve.ninhu.xyz:19999",
+            "portal-proxy.ninhu.xyz:19999",
+            "orion.ninhu.xyz:19999",
+            "supermario.ninhu.xyz:19999",
+            "rpi.ninhu.xyz:19999",
+            "elastic-manager-1.ninhu.xyz:19999",
+            "elastic-manager-2.ninhu.xyz:19999",
+            "elastic-manager-3.ninhu.xyz:19999",
+            "elastic-data-1.ninhu.xyz:19999",
+            "elastic-data-2.ninhu.xyz:19999",
+          ]
+
+        # - job_name: "federate"
+        #   scrape_interval: 15s
+
+        #   honor_labels: true
+        #   metrics_path: "/federate"
+
+        #   params:
+        #     'match[]':
+        #       - "{job='prometheus'}"
+        #       - "{__name__=~'job:.*'}"
+
+        #   static_configs:
+        #     - targets:
+        #         [
+        #           "balai-dc.ninhu.xyz:10090",
+        #         ]
+
+prometheus_config_file: "prometheus.yml.j2"

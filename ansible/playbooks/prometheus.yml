@@ -1,4 +1,5 @@
-- hosts: proxy
+---
+- hosts: prometheus
   remote_user: "infra"
   tags: prometheus
   tasks:
@@ -6,4 +7,4 @@
       include_role:
         name: "{{ item }}"
       loop:
-        - cloudalchemy.prometheus
+        - prometheus.prometheus.prometheus
