@@ -1,5 +1,10 @@
 {
-  "packages": [],
+  "packages": [
+    "ansible@latest"
+
+
+
+  ],
   "shell": {
     "init_hook": "export \"PATH=$PATH:$PWD/terraform/cloudflare:$PWD/ansible\" PS1='📦 devbox>"
   }

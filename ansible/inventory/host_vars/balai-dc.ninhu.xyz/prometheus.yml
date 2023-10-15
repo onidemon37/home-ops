@@ -57,7 +57,7 @@ prometheus_scrape_configs:
   - job_name: 'pve'
     static_configs:
       - targets:
-          - "192.168.89.26:9221"  # Proxmox VE node with PVE exporter.
+          - "pve.ninhu.xyz:9221"  # Proxmox VE node with PVE exporter.
     metrics_path: /pve
     params:
       module: [default]
@@ -100,7 +100,6 @@ prometheus_scrape_configs:
         #     - targets:
         #         [
         #           "balai-dc.ninhu.xyz:10090",
-        #           "portal-proxy.ninhu.xyz:9090"
         #         ]
 
 prometheus_config_file: "prometheus.yml.j2"
