@@ -12,7 +12,7 @@ users:
     home_mode: "0700"
     system: false
     group: "{{ workstation_user }}"
-    groups: ["wheel"]
+    groups: ["wheel", "docker"]
     shell: "{{ user_shell }}"
 
 users_remove: []

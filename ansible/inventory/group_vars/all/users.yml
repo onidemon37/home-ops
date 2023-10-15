@@ -1,0 +1,19 @@
+---
+workstation_user: "infra"
+user_shell: "/usr/bin/zsh"
+
+superadmins:
+  - onidemon
+  - bmt
+
+users:
+  - username: "{{ workstation_user }}"
+    authorized_keys: "{{ superadmins | default([]) }}"
+    home: "/home/{{ workstation_user }}"
+    home_mode: "0700"
+    system: false
+    group: "{{ workstation_user }}"
+    groups: ["wheel"]
+    shell: "{{ user_shell }}"
+
+users_remove: []

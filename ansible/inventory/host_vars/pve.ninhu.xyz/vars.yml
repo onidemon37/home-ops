@@ -1,0 +1,12 @@
+---
+workstation_user: "root"
+
+superadmins:
+  - onidemon
+
+users:
+  - username: "{{ workstation_user }}"
+    authorized_keys: "{{ superadmins | default([]) }}"
+    groups: ["root"]
+
+users_remove: ["infra"]

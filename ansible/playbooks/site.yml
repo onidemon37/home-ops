@@ -9,7 +9,7 @@
     - nignu-common
 
 - name: "Configure base for all servers"
-  hosts: all
+  hosts: all !proxmox
   remote_user: "{{ workstation_user | default('root') }}"
   become: true
   become_method: sudo
