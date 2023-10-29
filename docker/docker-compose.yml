@@ -58,12 +58,12 @@ services:
       ROOT_TIMEZONE: "${TIMEZONE}"
       GRAYLOG_TIMEZONE: "${TIMEZONE}"
       # CHANGE ME (must be at least 16 characters)! This is not your password, this is meant for salting the password below.
-      GRAYLOG_PASSWORD_SECRET: ZDcwMzQ3NTE4ZTIwM
+      GRAYLOG_PASSWORD_SECRET:  <graylog secret>
       # Username is "admin"
       # Password is "admin", change this to your own hashed password. 'echo -n "password" | sha256sum'
-      GRAYLOG_ROOT_PASSWORD_SHA2: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+      GRAYLOG_ROOT_PASSWORD_SHA2: "<graylog password>"
       GRAYLOG_HTTP_EXTERNAL_URI: "http://0.0.0.0:9000/"
-      entrypoint: "/usr/bin/tini -- wait-for-it 192.168.89.22:9200 --  /docker-entrypoint.sh"
+      entrypoint: "/usr/bin/tini -- wait-for-it elastic-manager-1.ninhu.xyz:9200 --  /docker-entrypoint.sh"
     links:
       - mongodb:mongo
       #- elasticsearch
@@ -108,8 +108,6 @@ services:
       - "${GRAFANA_PORT}:3000"
     volumes:
       - "./grafana/provisioning:/etc/grafana/provisioning/"
-      #- "./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards"
-      #- "./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources"
       - "grafana_data:/var/lib/grafana"
     networks:
       - monitoring
@@ -125,7 +123,6 @@ services:
       GF_DATABASE_USER: "${GRAFANA_DATABASE_USER}"
       GF_DATABASE_PASSWORD: "${GRAFANA_DATABASE_PASSWORD}"
       GF_PATHS_PROVISIONING: "/etc/grafana/provisioning"
-      #GF_INSTALL_PLUGINS: "grafana-worldmap-panel"
     restart: "unless-stopped"
 
   # Cadvisor
@@ -140,44 +137,6 @@ services:
       - "${CADVISOR_PORT}:8080"
     networks:
       - monitoring
-
-        #loki:
-        #  container_name: "${APP_NAME}-loki"
-        #  image: "${LOKI_IMAGE}:${LOKI_VERSION}"
-        #  ports:
-        #    - "${LOKI_PORT}:3100"
-        #  command: '-config.file=/etc/loki/local-config.yaml'
-        #  restart: "unless-stopped"
-        #  networks:
-        #    - monitoring
-
-        #promtail:
-        #  container_name: "${APP_NAME}-loki-promtail"
-        #  image: "${LOKI_PROMTAIL_IMAGE}:${LOKI_PROMTAIL_VERSION}"
-        #  volumes:
-        #    - "/var/log:/var/log"
-        #  command: '-config.file=/etc/promtail/config.yml'
-        #  restart: "unless-stopped"
-        #  networks:
-        #    - monitoring
-
-  #  alertmanager:
-  #    image: prom/alertmanager:v0.23.0
-  #    restart: unless-stopped
-  #    ports:
-  #      - "9093:9093"
-  #    volumes:
-  #      - "./alertmanager:/config"
-  #      - alertmanager-data:/data
-  #    command: --config.file=/config/alertmanager.yml --log.level=debug
-
-  #prom2teams:
-  #  image: idealista/prom2teams:3.2.3
-  #  restart: unless-stopped
-  #  environment:
-  #    PROM2TEAMS_CONNECTOR: "https://og2gether.webhook.office.com/webhookb2/b5370781-89c2-45ba-be14-453e29dfb0a9@8794e153-c3bd-4479-8bea-61aeaf167d5a/IncomingWebhook/57e69e8f10dd49ce8dae3b816159e228/4eb361c9-e566-4b66-ab30-bed630f495a5"
-  #  ports:
-  #    - 8089:8089
 
 networks:
   monitoring:
