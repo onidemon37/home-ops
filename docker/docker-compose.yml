@@ -1,0 +1,152 @@
+version: '3.8'
+
+services:
+  # PSQL Adminer
+  adminer:
+    container_name: "${APP_NAME}-adminer"
+    image: "adminer"
+    restart: always
+    networks:
+      - monitoring
+    ports:
+      - "${PSQL_ADMINER_PORT}:8080"
+
+  # Mongodb
+  mongodb:
+    container_name: "${APP_NAME}-mongodb"
+    image: "${MONGO_IMAGE}:${MONGO_VERSION}"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_INIT_ROOT_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INIT_ROOT_PASSWORD}"
+      MONGO_INITDB_DATABASE: "${MONGO_INIT_DATABASE}"
+    volumes:
+      - "mongodb_data:/data/db"
+    restart: unless-stopped
+    ports:
+      - "${MONGO_PORT}:27017"
+    networks:
+      - monitoring
+
+  prometheus:
+    container_name: "${APP_NAME}-prometheus"
+    image: ${PROMETHEUS_IMAGE}:${PROMETHEUS_VERSION}
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - ${PROMETHEUS_PORT}:9090
+    links:
+      - cadvisor:cadvisor
+      # - alertmanager:alertmanager
+#     # - pushgateway:pushgateway
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  graylog:
+    container_name: "${APP_NAME}-graylog"
+    image: graylog/graylog:5.1.2
+    volumes:
+      - graylog_data:/usr/share/graylog/data
+    environment:
+      # Change these to your time zone, valid time zones can be found here: https://www.joda.org/joda-time/timezones.html
+      ROOT_TIMEZONE: "${TIMEZONE}"
+      GRAYLOG_TIMEZONE: "${TIMEZONE}"
+      # CHANGE ME (must be at least 16 characters)! This is not your password, this is meant for salting the password below.
+      GRAYLOG_PASSWORD_SECRET:  <graylog secret>
+      # Username is "admin"
+      # Password is "admin", change this to your own hashed password. 'echo -n "password" | sha256sum'
+      GRAYLOG_ROOT_PASSWORD_SHA2: "<graylog password>"
+      GRAYLOG_HTTP_EXTERNAL_URI: "http://0.0.0.0:9000/"
+      entrypoint: "/usr/bin/tini -- wait-for-it elastic-manager-1.ninhu.xyz:9200 --  /docker-entrypoint.sh"
+    links:
+      - mongodb:mongo
+      #- elasticsearch
+    depends_on:
+      - mongodb
+      #- elasticsearch
+    networks:
+      - monitoring
+    ports:    
+        # Graylog web interface and REST API
+      - 9000:9000
+        # Syslog UDP
+      - 1514:1514/udp
+        # Syslog TCP
+      - 1514:1514
+    restart: "unless-stopped"
+  
+  # influcdb
+  influxdb:
+    container_name: "${APP_NAME}-influxdb"
+    image: "${INFLUX_IMAGE}:${INFLUX_VERSION}"
+    ports:
+      - '${INFLUX_PORT}:8086'
+    volumes:
+      - "influxdb2_data:/var/lib/influxdb2"
+    networks:
+      - monitoring
+    environment:
+      - "DOCKER_INFLUXDB_INIT_MODE=${INFLUX_MODE}"
+      - "DOCKER_INFLUXDB_INIT_USERNAME=${INFLUX_USERNAME}"
+      - "DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUX_PASSWORD}"
+      - "DOCKER_INFLUXDB_INIT_ORG=${INFLUX_ORG}"
+      - "DOCKER_INFLUXDB_INIT_BUCKET=${INFLUX_BUCKET}"
+      - "DOCKER_INFLUXDB_INIT_RETENTION=${INFLUX_RETENTION}"
+      - "TZ=${TIMEZONE}"
+    restart: "unless-stopped"
+
+  grafana:
+    container_name: "${APP_NAME}-grafana"
+    image: "${GRAFANA_IMAGE}:${GRAFANA_VERSION}"
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - "./grafana/provisioning:/etc/grafana/provisioning/"
+      - "grafana_data:/var/lib/grafana"
+    networks:
+      - monitoring
+    depends_on:
+      - "influxdb"
+    environment:
+      # Change this to your time zone, valid time zones can be found here: https://www.joda.org/joda-time/timezones.html
+      TZ: "${TIMEZONE}"
+      GF_SECURITY_ADMIN_USER: "${GRAFANA_ADMIN_USER}"
+      GF_DATABASE_TYPE: "postgres"
+      GF_DATABASE_HOST: "${GRAFANA_DATABASE_HOST}:${GRAFANA_DATABASE_PORT}"
+      GF_DATABASE_NAME: "${GRAFANA_DATABASE_NAME}"
+      GF_DATABASE_USER: "${GRAFANA_DATABASE_USER}"
+      GF_DATABASE_PASSWORD: "${GRAFANA_DATABASE_PASSWORD}"
+      GF_PATHS_PROVISIONING: "/etc/grafana/provisioning"
+    restart: "unless-stopped"
+
+  # Cadvisor
+  cadvisor:
+    image: "${CADVISOR_IMAGE}"
+    container_name: "${APP_NAME}-cadvisor"
+    volumes:
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+    ports:
+      - "${CADVISOR_PORT}:8080"
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  grafana_data:
+  influxdb2_data:
+  mongodb_data:
+  graylog_data:
+  mongodb_config:
+  es_data:
+  prometheus_data:
