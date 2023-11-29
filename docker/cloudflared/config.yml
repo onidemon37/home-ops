@@ -1,0 +1,4 @@
+tunnel:
+credentials-file: /etc/cloudflared/credentials.json
+
+loglevel: info
