@@ -72,7 +72,7 @@ services:
       #- elasticsearch
     networks:
       - monitoring
-    ports:    
+    ports:
         # Graylog web interface and REST API
       - 9000:9000
         # Syslog UDP
@@ -80,7 +80,7 @@ services:
         # Syslog TCP
       - 1514:1514
     restart: "unless-stopped"
-  
+
   # influcdb
   influxdb:
     container_name: "${APP_NAME}-influxdb"
@@ -137,6 +137,15 @@ services:
       - "${CADVISOR_PORT}:8080"
     networks:
       - monitoring
+
+  cloudflare:
+    container_name: "${APP_NAME}-cloudflare"
+    image: "${CLOUDFLARE_IMAGE}:${CLOUDFLARE_VERSION}"
+    restart: unless-stopped
+    volumes:
+      - "./cloudflare/config.yml:/etc/cloudflared/config.yml"
+      - "./cloudflare/credentials.json:/etc/cloudflared/cloudflare.json"
+    command: tunnel run
 
 networks:
   monitoring:
