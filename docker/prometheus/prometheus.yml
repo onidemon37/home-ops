@@ -3,83 +3,55 @@
 global:
   evaluation_interval: 15s
   scrape_interval: 15s
-  scrape_timeout: 10s
-
-rule_files:
-  - alert.yml
 
 scrape_configs:
   - job_name: "prometheus"
     metrics_path: /metrics
     static_configs:
-    - targets:
-      - balai-dc.ninhu.xyz:9090
-
-  - job_name: "services - Home Lab"
-    metrics_path: /metrics
-    static_configs:
       - targets:
-        # Home Lab
-        - "balai-dc.ninhu.xyz:9100"
-        - "pve.ninhu.xyz:9100"
-        - "data-psql.ninhu.xyz:9100"
-        - "pve.ninhu.xyz:9100"
-        - "balai-dc.ninhu.xyz:9100"
-        - "opnsense.ninhu.xyz:9100"
-        - "supermario.ninhu.xyz:9100"
-        - "orion.ninhu.xyz:9100"
-        - "rpi.ninhu.xyz:9100"
-        - "elastic-manager-1.ninhu.xyz:9100"
-        - "elastic-manager-2.ninhu.xyz:9100"
-        - "elastic-manager-3.ninhu.xyz:9100"
-        - "elastic-data-1.ninhu.xyz:9100"
-        - "elastic-data-2.ninhu.xyz:9100"
-
-  - job_name: "Docker Job"
-    static_configs:
-      - targets: ["balai-dc.ninhu.xyz:9323"]
+          - "hyperion.ninhu.xyz:10090"
 
   - job_name: "cadvisor"
     metrics_path: /metrics
     scrape_interval: 5s
     static_configs:
       - targets:
-          - "cadvisor:10080"
+          - "cadvisor:8080"
 
-  - job_name: 'balai-dc: cadvisor'
-    metrics_path: /metrics
-    scrape_interval: 5s
+  - job_name: 'node'
+    honor_labels: true
+    metrics_path: '/metrics'
     static_configs:
-    - targets:
-      - balai-dc.ninhu.xyz:10080
+      - targets:
+          - "hyperion.ninhu.xyz:9100"
+          - "opnsense.ninhu.xyz:9100"
+          - "orion.ninhu.xyz:9100"
+          - "osc.ninhu.xyz:9100"
+          - "psql.ninhu.xyz:9100"
+          - "rpi.ninhu.xyz:9100"
 
-  - job_name: pve
-    metrics_path: /pve
-    params:
-      module:
-      - default
-    static_configs:
-    - targets:
-      - pve.ninhu.xyz:9221
-
-  - honor_labels: true
-    job_name: netdata - test
-    metrics_path: /api/v1/allmetrics
+  - job_name: 'netdata'
+    honor_labels: true
+    metrics_path: '/api/v1/allmetrics'
     params:
       format:
-      - prometheus_all_hosts
+        - prometheus_all_hosts
     static_configs:
-    - targets:
-      - opnsense.ninhu.xyz:19999
-      - data-psql.ninhu.xyz:19999
-      - balai-dc.ninhu.xyz:19999
-      - pve.ninhu.xyz:19999
-      - portal-proxy.ninhu.xyz:19999
-      - orion.ninhu.xyz:19999
-      - supermario.ninhu.xyz:19999
-      - rpi.ninhu.xyz:19999
-      - elastic-manager-1.ninhu.xyz:19999
-      - elastic-manager-2.ninhu.xyz:19999
-      - elastic-manager-3.ninhu.xyz:19999
-      - elastic-data-1.ninhu.xyz:19999
-      - elastic-data-2.ninhu.xyz:19999
+      - targets:
+          - "hyperion.ninhu.xyz:19999"
+          - "opnsense.ninhu.xyz:19999"
+          - "orion.ninhu.xyz:19999"
+          - "osc.ninhu.xyz:19999"
+          - "psql.ninhu.xyz:19999"
+          - "rpi.ninhu.xyz:19999"
+
+  - job_name: "postgres_exporter"
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+    static_configs:
+      - targets:
+          - "psql.ninhu.xyz:9187"

@@ -30,7 +30,7 @@
 - name: "Install oh-my-zsh"
   hosts: all
   tags: ohmy
-  remote_user: root #"{{ user_name }}"
+  remote_user: "{{ ansible_user | default('root') }}"
   tasks:
     - name: Check if .zshrc exists
       ansible.builtin.stat:
@@ -52,6 +52,7 @@
       ansible.builtin.copy:
         src: "~/.oh-my-zsh/templates/zshrc.zsh-template"
         dest: "~/.zshrc"
+        remote_src: yes
       when: not stat_zshrc.stat.exists
 
     - name: "Clone oh-my-zsh plugins"

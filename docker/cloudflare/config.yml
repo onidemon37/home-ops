@@ -1,0 +1,6 @@
+tunnel: 1de9a3e9-2957-4e72-979f-021966d2b271
+credentials-file: /home/onidemon/.cloudflared/1de9a3e9-2957-4e72-979f-021966d2b271.json
+
+ingress:
+  - hostname: grafana.ninhu.xyz
+    service: http://localhost:10030

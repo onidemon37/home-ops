@@ -39,5 +39,6 @@
       include_role:
         name: prometheus.prometheus.node_exporter
 
+- import_playbook: ohmyzsh.yml
 - import_playbook: prometheus.yml
 - import_playbook: nginx.yml

@@ -1,0 +1,47 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://hyperion.ninhu.xyz:10090
+    basicAuth: false
+    isDefault: true
+    version: 1
+    editable: true
+    jsonData:
+      httpMethod: POST
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: 2.50.0
+  - name: InfluxDB_v2_Flux
+    type: influxdb
+    access: proxy
+    editable: true
+    database: ninhu
+    url: http://hyperion.ninhu.xyz:10086
+    jsonData:
+      version: Flux
+      organization: ninhu
+      defaultBucket: ninhu
+      tlsSkipVerify: true
+      httpMethod: GET
+    secureJsonData:
+      token: <token>
+
+  - name: Loki
+    type: loki
+    access: proxy
+    orgId: 1
+    editable: true
+    url: http://hyperion.ninhu.xyz:3100
+    jsonData:
+      maxLines: 1000  # Adjust as needed
+
+  - name: Opensearch
+    type: elasticsearch
+    access: proxy
+    editable: true
+    url: http://hyperion.ninhu.xyz:9200
+    # database: "[INDEX_PATTERN]"
